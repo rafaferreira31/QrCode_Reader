@@ -1,17 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using QrCode_Reader.Views;
 
 namespace QrCode_Reader
 {
     public partial class App : Application
     {
-        public App()
+        public App(ScannerPage page)
         {
             InitializeComponent();
-        }
-
-        protected override Window CreateWindow(IActivationState? activationState)
-        {
-            return new Window(new AppShell());
+            MainPage = new NavigationPage(page);
         }
     }
 }
