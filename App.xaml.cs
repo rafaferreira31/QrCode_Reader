@@ -5,10 +5,11 @@ namespace QrCode_Reader
 {
     public partial class App : Application
     {
-        public App(ScannerPage page)
+        public App(AppShell shell)
         {
             InitializeComponent();
-            MainPage = new NavigationPage(page);
+            MainPage = shell;
         }
+
     }
 }
