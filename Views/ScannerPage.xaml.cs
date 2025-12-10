@@ -21,56 +21,66 @@ public partial class ScannerPage : ContentPage
     private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
         if (_isProcessing)
-            return;
+            return; // Evita processar múltiplos scans simultâneos
 
         _isProcessing = true;
 
-        var qrValue = e.Results.FirstOrDefault()?.Value;
-
-        if (string.IsNullOrWhiteSpace(qrValue))
+        try
         {
-            _isProcessing = false;
-            return;
-        }
+            var qrValue = e.Results.FirstOrDefault()?.Value;
 
-        var clientId = QrHelper.ExtractClientId(qrValue);
+            if (string.IsNullOrWhiteSpace(qrValue))
+                return;
 
-        if (clientId == null)
-        {
+            var clientId = QrHelper.ExtractClientId(qrValue);
+
+            if (clientId == null)
+            {
+                await Dispatcher.DispatchAsync(async () =>
+                {
+                    await DisplayAlert("QR inválido", qrValue, "Fechar");
+                });
+                return;
+            }
+
+            // Buscar cliente na base de dados
+            var client = await _db.GetClientByIdAsync(clientId.Value);
+
+            if (client == null)
+            {
+                await Dispatcher.DispatchAsync(async () =>
+                {
+                    await DisplayAlert("Erro", "Cliente não encontrado!", "OK");
+                });
+                return;
+            }
+
+            if (client.Delivered)
+            {
+                await Dispatcher.DispatchAsync(async () =>
+                {
+                    await DisplayAlert("Info", "Entrega já foi confirmada para este cliente.", "OK");
+                });
+                return;
+            }
+
+            // Navegar para a página de confirmação
             await Dispatcher.DispatchAsync(async () =>
             {
-                await DisplayAlert("QR inválido", qrValue, "Fechar");
+                await Navigation.PushAsync(new ConfirmDeliveryPage(_db, client));
             });
-
-            _isProcessing = false;
-            return;
         }
-
-        await _db.MarkAsDeliveredAsync(clientId.Value);
-
-        await Dispatcher.DispatchAsync(async () =>
+        catch (Exception ex)
         {
-            ResultLabel.Text = $"Entregue: UNID{clientId}";
-            await DisplayAlert("Sucesso",
-                $"Entrega confirmada para UNID{clientId}",
-                "OK");
-        });
-
-        await Task.Delay(1500); // tempo entre leituras
-        _isProcessing = false;
-    }
-
-    // ✅ Simulação para PC/Emulador
-    private async void Simulate_Clicked(object sender, EventArgs e)
-    {
-        string fakeQr = "UNID08059";
-
-        var id = QrHelper.ExtractClientId(fakeQr);
-
-        if (id != null)
+            // Log do erro ou alerta para o usuário
+            await Dispatcher.DispatchAsync(async () =>
+            {
+                await DisplayAlert("Erro inesperado", ex.Message, "OK");
+            });
+        }
+        finally
         {
-            await _db.MarkAsDeliveredAsync(id.Value);
-            await DisplayAlert("Simulação", "Entrega marcada!", "OK");
+            _isProcessing = false; // Libera o scanner
         }
     }
 
@@ -79,8 +89,4 @@ public partial class ScannerPage : ContentPage
         await Navigation.PushAsync(new ListPage(_db));
     }
 
-    private async void Import_Clicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new ImportPage(_db));
-    }
 }

@@ -21,7 +21,6 @@ public static class MauiProgram
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddTransient<ScannerPage>();
         builder.Services.AddTransient<ListPage>();
-
         return builder.Build();
     }
 }

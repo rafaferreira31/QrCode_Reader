@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using QrCode_Reader.Views;
-
-namespace QrCode_Reader
+﻿namespace QrCode_Reader
 {
     public partial class App : Application
     {

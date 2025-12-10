@@ -5,18 +5,6 @@
     xmlns:views="clr-namespace:QrCode_Reader.Views"
     x:Class="QrCode_Reader.AppShell">
 
-    <TabBar>
-
-        <ShellContent
-            Title="Scanner"
-            Icon="scan.png"
-            ContentTemplate="{DataTemplate views:ScannerPage}" />
-
-        <ShellContent
-            Title="Lista"
-            Icon="list.png"
-            ContentTemplate="{DataTemplate views:ListPage}" />
-
-    </TabBar>
+    
 
 </Shell>

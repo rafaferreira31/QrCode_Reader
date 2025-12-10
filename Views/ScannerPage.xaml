@@ -8,14 +8,14 @@
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
 
-        <!-- TÍTULO -->
+        <!-- Tï¿½TULO -->
         <Label Text="Leitor de QR"
                FontSize="28"
                FontAttributes="Bold"
                HorizontalOptions="Center"
                Grid.Row="0"/>
 
-        <!-- ÁREA DO SCANNER -->
+        <!-- ï¿½REA DO SCANNER -->
         <Frame Grid.Row="1"
                CornerRadius="20"
                Padding="0"
@@ -27,24 +27,5 @@
             <zxing:CameraBarcodeReaderView x:Name="cameraView"
                                            BarcodesDetected="OnBarcodesDetected"/>
         </Frame>
-
-        <!-- BOTÃO -->
-        <Button Grid.Row="2"
-                Text="Leitor de QR"
-                HeightRequest="55"
-                CornerRadius="25"
-                BackgroundColor="Black"
-                TextColor="White"
-                FontSize="18"
-                Margin="0,25,0,0"/>
-
-        <!-- RESULTADO -->
-        <Label x:Name="ResultLabel"
-               Grid.Row="2"
-               Margin="0,90,0,0"
-               FontSize="16"
-               TextColor="Green"
-               HorizontalOptions="Center"/>
-
     </Grid>
 </ContentPage>

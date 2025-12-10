@@ -1,0 +1,43 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+             x:Class="QrCode_Reader.Views.ConfirmDeliveryPage"
+             Title="Delivery">
+
+    <VerticalStackLayout Padding="30" Spacing="30">
+
+        <Label Text="DELIVERY"
+               FontSize="22"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+
+        <!-- CARTÃO -->
+        <Frame BackgroundColor="#EDEDED"
+               CornerRadius="15"
+               Padding="25"
+               HasShadow="False">
+
+            <VerticalStackLayout Spacing="15">
+
+                <Label x:Name="NameLabel"
+                       FontSize="20"
+                       HorizontalOptions="Center"/>
+
+                <Label x:Name="IdLabel"
+                       FontSize="16"
+                       HorizontalOptions="Center"/>
+
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- BOTÃO CONFIRMAR -->
+        <Button Text="CONFIRM"
+                BackgroundColor="#2B2B2B"
+                TextColor="White"
+                HeightRequest="55"
+                CornerRadius="12"
+                Clicked="Confirm_Clicked"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>

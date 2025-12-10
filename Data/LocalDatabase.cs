@@ -32,27 +32,55 @@ namespace QrCode_Reader.Data
 
         public async Task ImportCsvAsNewProjectAsync(string filePath, string projectName)
         {
+            // 1. Limpeza inicial
             await DeleteAllClientsAsync();
+
             var project = new Project { Name = projectName };
             await _db.InsertAsync(project);
 
+            // 2. Configuração de leitura
             using var reader = new StreamReader(filePath);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-            var records = csv.GetRecords<dynamic>().ToList();
-            foreach (var r in records)
-            {
-                int id = int.Parse(r.Id);
-                string name = r.Nome;
+            // Lista temporária para guardar um lote de clientes
+            var clientBatch = new List<Client>();
+            const int BATCH_SIZE = 50; // Processa 500 registos de cada vez para poupar RAM
 
-                var client = new Client
+            // Ler o cabeçalho
+            csv.Read();
+            csv.ReadHeader();
+
+            while (csv.Read())
+            {
+                // Leitura manual é mais rápida e segura que dynamic
+                // Tenta obter o ID, se falhar ou for nulo, ignora ou trata
+                if (int.TryParse(csv.GetField("Id"), out int id))
                 {
-                    Id = id,
-                    Name = name,
-                    Delivered = false,
-                    ProjectId = project.Id
-                };
-                await _db.InsertAsync(client);
+                    var client = new Client
+                    {
+                        Id = id,
+                        // Certifique-se que "Nome" corresponde ao cabeçalho no CSV. 
+                        // Se no CSV for "Name", altere aqui.
+                        Name = csv.GetField("Nome") ?? "Sem Nome",
+                        Delivered = false,
+                        ProjectId = project.Id
+                    };
+
+                    clientBatch.Add(client);
+                }
+
+                // 3. Quando o lote atingir o tamanho definido, grava na base de dados
+                if (clientBatch.Count >= BATCH_SIZE)
+                {
+                    await _db.InsertAllAsync(clientBatch); // Grava 500 de uma vez
+                    clientBatch.Clear(); // Limpa a memória
+                }
+            }
+
+            // 4. Grava os registos restantes (o que sobrou do último lote)
+            if (clientBatch.Count > 0)
+            {
+                await _db.InsertAllAsync(clientBatch);
             }
         }
 
@@ -77,6 +105,22 @@ namespace QrCode_Reader.Data
                 await _db.UpdateAsync(client);
             }
         }
+
+
+        public async Task<string> GetProjectNameByClientIdAsync(int clientId)
+        {
+            var client = await _db.Table<Client>()
+                .FirstOrDefaultAsync(c => c.Id == clientId);
+
+            if (client == null)
+                return string.Empty;
+
+            var project = await _db.Table<Project>()
+                .FirstOrDefaultAsync(p => p.Id == client.ProjectId);
+
+            return project?.Name ?? string.Empty;
+        }
+
     }
 
 }
