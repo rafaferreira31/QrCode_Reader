@@ -44,7 +44,7 @@ namespace QrCode_Reader.Data
 
             // Lista temporária para guardar um lote de clientes
             var clientBatch = new List<Client>();
-            const int BATCH_SIZE = 50; // Processa 500 registos de cada vez para poupar RAM
+            const int BATCH_SIZE = 100; // Processa 100 registos de cada vez para poupar RAM
 
             // Ler o cabeçalho
             csv.Read();
@@ -104,21 +104,6 @@ namespace QrCode_Reader.Data
                 client.Delivered = true;
                 await _db.UpdateAsync(client);
             }
-        }
-
-
-        public async Task<string> GetProjectNameByClientIdAsync(int clientId)
-        {
-            var client = await _db.Table<Client>()
-                .FirstOrDefaultAsync(c => c.Id == clientId);
-
-            if (client == null)
-                return string.Empty;
-
-            var project = await _db.Table<Project>()
-                .FirstOrDefaultAsync(p => p.Id == client.ProjectId);
-
-            return project?.Name ?? string.Empty;
         }
 
     }

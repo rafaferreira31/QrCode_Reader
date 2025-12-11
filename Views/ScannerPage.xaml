@@ -3,29 +3,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
              x:Class="QrCode_Reader.Views.ScannerPage"
-             Title="Leitor de QR"
-             BackgroundColor="White">
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False">
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
 
-        <!-- T�TULO -->
-        <Label Text="Leitor de QR"
+        <Label Text="QR READER"
                FontSize="28"
                FontAttributes="Bold"
                HorizontalOptions="Center"
+               Margin="0,85,0,0"
                Grid.Row="0"/>
 
-        <!-- �REA DO SCANNER -->
-        <Frame Grid.Row="1"
-               CornerRadius="20"
-               Padding="0"
-               HasShadow="False"
-               BackgroundColor="#E5E5E5"
-               VerticalOptions="Center"
-               HeightRequest="320">
+        <Border x:Name="scannerBorder"
+                Grid.Row="1"
+                StrokeThickness="0"
+                Background="#E5E5E5"
+                StrokeShape="RoundRectangle 20"
+                HeightRequest="120"
+                WidthRequest="120"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
 
             <zxing:CameraBarcodeReaderView x:Name="cameraView"
                                            BarcodesDetected="OnBarcodesDetected"/>
-        </Frame>
+        </Border>
+
     </Grid>
 </ContentPage>

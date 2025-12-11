@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
              x:Class="QrCode_Reader.Views.ConfirmDeliveryPage"
-             Title="Delivery">
+             Shell.NavBarIsVisible="False">
 
     <VerticalStackLayout Padding="30" Spacing="30">
 

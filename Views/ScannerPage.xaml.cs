@@ -1,8 +1,6 @@
 ﻿using QrCode_Reader.Data;
 using QrCode_Reader.Helpers;
 using ZXing.Net.Maui;
-using ZXing.Net.Maui.Controls;
-using System.Linq;
 
 namespace QrCode_Reader.Views;
 
@@ -17,11 +15,10 @@ public partial class ScannerPage : ContentPage
         _db = db;
     }
 
-    // ✅ Leitura REAL de QR
     private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
         if (_isProcessing)
-            return; // Evita processar múltiplos scans simultâneos
+            return;
 
         _isProcessing = true;
 
@@ -30,63 +27,105 @@ public partial class ScannerPage : ContentPage
             var qrValue = e.Results.FirstOrDefault()?.Value;
 
             if (string.IsNullOrWhiteSpace(qrValue))
+            {
+                _isProcessing = false;
                 return;
+            }
 
             var clientId = QrHelper.ExtractClientId(qrValue);
 
+            // Pausar scanner antes do processamento
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                cameraView.IsDetecting = false;
+            });
+
+            // --- QR INVÁLIDO ---
             if (clientId == null)
             {
-                await Dispatcher.DispatchAsync(async () =>
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await DisplayAlert("QR inválido", qrValue, "Fechar");
+
+                    // Reativar o scanner
+                    cameraView.IsDetecting = true;
+                    _isProcessing = false;
                 });
+
                 return;
             }
 
-            // Buscar cliente na base de dados
             var client = await _db.GetClientByIdAsync(clientId.Value);
 
+            // --- CLIENTE NÃO ENCONTRADO ---
             if (client == null)
             {
-                await Dispatcher.DispatchAsync(async () =>
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await DisplayAlert("Erro", "Cliente não encontrado!", "OK");
+
+                    cameraView.IsDetecting = true;
+                    _isProcessing = false;
                 });
                 return;
             }
 
+            // --- ENTREGA JÁ CONFIRMADA ---
             if (client.Delivered)
             {
-                await Dispatcher.DispatchAsync(async () =>
+                await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await DisplayAlert("Info", "Entrega já foi confirmada para este cliente.", "OK");
+
+                    cameraView.IsDetecting = true;
+                    _isProcessing = false;
                 });
                 return;
             }
 
-            // Navegar para a página de confirmação
-            await Dispatcher.DispatchAsync(async () =>
+            // --- CASO VÁ PARA A PÁGINA DE CONFIRMAÇÃO ---
+            await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 await Navigation.PushAsync(new ConfirmDeliveryPage(_db, client));
             });
         }
-        catch (Exception ex)
-        {
-            // Log do erro ou alerta para o usuário
-            await Dispatcher.DispatchAsync(async () =>
-            {
-                await DisplayAlert("Erro inesperado", ex.Message, "OK");
-            });
-        }
         finally
         {
-            _isProcessing = false; // Libera o scanner
+            // Não reativa automaticamente aqui
+            // Para evitar dupla leitura durante navegação
         }
+    }
+
+
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        _isProcessing = false;
+        cameraView.IsDetecting = true; // Retoma leitura
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        cameraView.IsDetecting = false; // Garante pausa
+    }
+
+
+    //Tamanho do scanner dinâmico
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+
+        double square = Math.Min(width - 40, height - 200) * 0.7;
+        scannerBorder.WidthRequest = square;
+        scannerBorder.HeightRequest = square;
     }
 
     private async void List_Clicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new ListPage(_db));
     }
-
 }
