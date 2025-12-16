@@ -104,6 +104,7 @@ public partial class ListPage : ContentPage
         {
             SearchBar.IsVisible = true;
             SearchIcon.IsEnabled = false;
+            Overlay.IsVisible = true;
 
             await Task.WhenAll(
                 SearchBar.TranslateTo(0, 0, 220, Easing.CubicOut),
@@ -122,15 +123,16 @@ public partial class ListPage : ContentPage
     private async Task CloseSearchAsync()
     {
         await Task.WhenAll(
-            SearchBar.TranslateTo(-300, 0, 200, Easing.CubicIn),
-            SearchBar.FadeTo(0, 200)
-        );
+        SearchBar.TranslateTo(-300, 0, 200, Easing.CubicIn),
+        SearchBar.FadeTo(0, 200)
+    );
 
         SearchBar.IsVisible = false;
         SearchBar.Text = string.Empty;
         SearchBar.Unfocus();
         SearchIcon.IsEnabled = true;
 
+        Overlay.IsVisible = false;
         _isSearchVisible = false;
 
         List.ItemsSource = allClients;
@@ -146,8 +148,6 @@ public partial class ListPage : ContentPage
             await CloseSearchAsync();
         }
     }
-
-
 
     // =========================
     // FILTRAR TEXTO
@@ -169,5 +169,20 @@ public partial class ListPage : ContentPage
             .Where(c => !string.IsNullOrEmpty(c.Name) &&
                         c.Name.ToLower().Contains(text))
             .ToList();
+    }
+
+
+    // =========================
+    // DETAILS DO CLIENTE
+    // =========================
+    private async void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is not Client selectedClient)
+            return;
+
+        // Remove seleção visual
+        List.SelectedItem = null;
+
+        await Navigation.PushAsync(new ClientDetailsPage(selectedClient));
     }
 }

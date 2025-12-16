@@ -44,7 +44,8 @@
     <Grid>
 
         <CollectionView x:Name="List"
-                        SelectionMode="None"
+                        SelectionMode="Single"
+                        SelectionChanged="List_SelectionChanged"
                         Margin="10">
 
             <CollectionView.ItemTemplate>
@@ -74,11 +75,14 @@
         </CollectionView>
 
         <!-- CAPTURA TOQUE FORA DA SEARCHBAR -->
-        <BoxView BackgroundColor="Transparent">
+        <BoxView x:Name="Overlay"
+         BackgroundColor="Transparent"
+         IsVisible="False">
             <BoxView.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnOutsideTapped"/>
             </BoxView.GestureRecognizers>
         </BoxView>
+
 
     </Grid>
 </ContentPage>

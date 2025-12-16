@@ -102,6 +102,7 @@ namespace QrCode_Reader.Data
             if (client != null)
             {
                 client.Delivered = true;
+                client.DeliverDate = DateTime.Now;
                 await _db.UpdateAsync(client);
             }
         }

@@ -9,6 +9,7 @@ namespace QrCode_Reader.Models
         public string Name { get; set; }
         public bool Delivered { get; set; }
         public int ProjectId { get; set; }
+        public DateTime? DeliverDate { get; set; }
     }
 }
 
