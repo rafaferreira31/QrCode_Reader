@@ -31,13 +31,24 @@ public partial class ListPage : ContentPage
     {
         var file = await FilePicker.PickAsync();
 
-        if (file != null)
+        if (file == null)
+            return;
+
+        try
         {
             await _db.ImportCsvAsNewProjectAsync(file.FullPath, file.FileName);
             await ReloadListAsync();
             await DisplayAlert("OK", "Importado com sucesso!", "Fechar");
         }
+        catch (Exception ex)
+        {
+            await DisplayAlert(
+                "Erro ao importar",
+                "O csv selecionado não é válido",
+                "OK");
+        }
     }
+
 
     // =========================
     // EXPORTAR
