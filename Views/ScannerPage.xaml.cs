@@ -32,6 +32,8 @@ public partial class ScannerPage : ContentPage
                 return;
             }
 
+            HapticFeedback.Default.Perform(HapticFeedbackType.Click);
+
             var clientId = QrHelper.ExtractClientId(qrValue);
 
             // Pausar scanner antes do processamento

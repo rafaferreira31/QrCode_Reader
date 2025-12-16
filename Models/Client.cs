@@ -11,3 +11,17 @@ namespace QrCode_Reader.Models
         public int ProjectId { get; set; }
     }
 }
+
+
+
+/* TODO: IMPLEMENTAR CLIENT CERTO
+ESTRUTURA DA TABELA CLIENTE FINAL
+
+Id 
+First Name
+Last Name
+Rotation do Produto
+Delivered 
+Data de Entrega
+
+*/

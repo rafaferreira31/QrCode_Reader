@@ -61,16 +61,30 @@ public partial class ListPage : ContentPage
         }
 
         var fileName = $"clientes_{DateTime.Now:yyyyMMdd_HHmm}.csv";
-        var path = Path.Combine(FileSystem.CacheDirectory, fileName);
+
+#if ANDROID
+        string downloadsPath = Android.OS.Environment.GetExternalStoragePublicDirectory(
+            Android.OS.Environment.DirectoryDownloads).AbsolutePath;
+        var path = Path.Combine(downloadsPath, fileName);
+
+        // Necessário para Android < 13
+        if ((int)Android.OS.Build.VERSION.SdkInt < 33)
+        {
+            var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
+            if (status != PermissionStatus.Granted)
+            {
+                await DisplayAlert("Permissão", "Não foi possível acessar a pasta de Downloads.", "OK");
+                return;
+            }
+        }
+#else
+        var path = Path.Combine(FileSystem.AppDataDirectory, fileName);
+#endif
 
         File.WriteAllText(path, csv.ToString());
-
-        await Share.Default.RequestAsync(new ShareFileRequest
-        {
-            Title = "Exportar CSV",
-            File = new ShareFile(path)
-        });
+        await DisplayAlert("Sucesso", $"Arquivo salvo em: {path}", "OK");
     }
+
 
     // =========================
     // RECARREGAR LISTA
@@ -133,7 +147,7 @@ public partial class ListPage : ContentPage
         }
     }
 
-   
+
 
     // =========================
     // FILTRAR TEXTO
