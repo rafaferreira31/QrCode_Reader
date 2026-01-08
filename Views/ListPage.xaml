@@ -54,7 +54,7 @@
                           ColumnDefinitions="*,Auto"
                           Padding="5,12">
 
-                        <Label Text="{Binding Name}"
+                        <Label Text="{Binding FullName}"
                                FontSize="16"
                                VerticalOptions="Center"/>
 

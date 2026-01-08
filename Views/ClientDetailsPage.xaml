@@ -23,12 +23,12 @@
             <VerticalStackLayout Spacing="20">
 
                 
-                <Label Text="{Binding Name}"
+                <Label Text="{Binding FullName}"
                        FontSize="18"
                        FontAttributes="Bold"
                        HorizontalTextAlignment="Center"/>
 
-                <Label Text="{Binding Id}"
+                <Label Text="{Binding UNID}"
                        FontSize="16"
                        HorizontalTextAlignment="Center"/>
 

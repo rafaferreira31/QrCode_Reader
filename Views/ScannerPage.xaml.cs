@@ -34,7 +34,7 @@ public partial class ScannerPage : ContentPage
 
             HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
-            var clientId = QrHelper.ExtractClientId(qrValue);
+            //var clientId = QrHelper.ExtractClientId(qrValue);
 
             // Pausar scanner antes do processamento
             await MainThread.InvokeOnMainThreadAsync(() =>
@@ -43,7 +43,7 @@ public partial class ScannerPage : ContentPage
             });
 
             // --- QR INVÁLIDO ---
-            if (clientId == null)
+            if (qrValue == null)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
@@ -57,7 +57,7 @@ public partial class ScannerPage : ContentPage
                 return;
             }
 
-            var client = await _db.GetClientByIdAsync(clientId.Value);
+            var client = await _db.GetClientByIdAsync(qrValue);
 
             // --- CLIENTE NÃO ENCONTRADO ---
             if (client == null)

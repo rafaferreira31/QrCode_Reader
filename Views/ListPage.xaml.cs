@@ -47,6 +47,8 @@ public partial class ListPage : ContentPage
                 "Selected csv Not Valid",
                 "OK");
         }
+
+       // await _db.CopyDatabaseToDownloadsAsync();
     }
 
 
@@ -64,11 +66,11 @@ public partial class ListPage : ContentPage
         }
 
         var csv = new StringBuilder();
-        csv.AppendLine("Id,Name,Delivered,DeliveryNote");
+        csv.AppendLine("UNID,NOME,COGNOME,DELIVERED,DATE,NOTE");
 
         foreach (var c in clients)
         {
-            csv.AppendLine($"{c.Id},{c.Name},{c.Delivered},{c.DeliveryNote}");
+            csv.AppendLine($"{c.UNID},{c.Name},{c.LastName},{c.Delivered},{c.DeliverDate},{c.DeliveryNote}");
         }
         var fileName = $"clientes_{DateTime.Now:yyyyMMdd_HHmm}.csv";
 
@@ -93,6 +95,8 @@ public partial class ListPage : ContentPage
 
         File.WriteAllText(path, csv.ToString());
         await DisplayAlertAsync("Sucess", $"Arquivo salvo em: {path}", "OK");
+
+        //await _db.CopyDatabaseToDownloadsAsync();
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration;
 using QrCode_Reader.Models;
 using SQLite;
 using System;
@@ -32,62 +33,65 @@ namespace QrCode_Reader.Data
 
         public async Task ImportCsvAsNewProjectAsync(string filePath, string projectName)
         {
-            // 1. Limpeza inicial
             await DeleteAllClientsAsync();
 
             var project = new Project { Name = projectName };
             await _db.InsertAsync(project);
 
-            // 2. Configuração de leitura
-            using var reader = new StreamReader(filePath);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = ",",
+                HasHeaderRecord = true,
+                BadDataFound = null,
+                MissingFieldFound = null,
+                HeaderValidated = null
+            };
 
-            // Lista temporária para guardar um lote de clientes
+            using var reader = new StreamReader(filePath, Encoding.UTF8);
+            using var csv = new CsvReader(reader, config);
+
             var clientBatch = new List<Client>();
-            const int BATCH_SIZE = 100; // Processa 100 registos de cada vez para poupar RAM
+            const int BATCH_SIZE = 100;
 
-            // Ler o cabeçalho
             csv.Read();
             csv.ReadHeader();
 
             while (csv.Read())
             {
-                // Leitura manual é mais rápida e segura que dynamic
-                // Tenta obter o ID, se falhar ou for nulo, ignora ou trata
-                if (int.TryParse(csv.GetField("Id"), out int id))
+                var unid = csv.GetField("UNID")?.Trim();
+
+                if (string.IsNullOrWhiteSpace(unid))
+                    continue;
+
+                var client = new Client
                 {
-                    var client = new Client
-                    {
-                        Id = id,
-                        // Certifique-se que "Nome" corresponde ao cabeçalho no CSV. 
-                        // Se no CSV for "Name", altere aqui.
-                        Name = csv.GetField("Nome") ?? "Sem Nome",
-                        Delivered = false,
-                        ProjectId = project.Id
-                    };
+                    UNID = unid,
+                    Name = csv.GetField("NOME")?.Trim() ?? "Sem Nome",
+                    LastName = csv.GetField("COGNOME")?.Trim() ?? "Sem Apelido",
+                    Delivered = false,
+                    ProjectId = project.Id
+                };
 
-                    clientBatch.Add(client);
-                }
+                clientBatch.Add(client);
 
-                // 3. Quando o lote atingir o tamanho definido, grava na base de dados
                 if (clientBatch.Count >= BATCH_SIZE)
                 {
-                    await _db.InsertAllAsync(clientBatch); // Grava 500 de uma vez
-                    clientBatch.Clear(); // Limpa a memória
+                    await _db.InsertAllAsync(clientBatch);
+                    clientBatch.Clear();
                 }
             }
 
-            // 4. Grava os registos restantes (o que sobrou do último lote)
             if (clientBatch.Count > 0)
             {
                 await _db.InsertAllAsync(clientBatch);
             }
         }
 
-        public async Task<Client?> GetClientByIdAsync(int id)
+
+        public async Task<Client?> GetClientByIdAsync(string UNID)
         {
             return await _db.Table<Client>()
-                .Where(c => c.Id == id)
+                .Where(c => c.UNID == UNID)
                 .FirstOrDefaultAsync();
         }
 
@@ -100,6 +104,43 @@ namespace QrCode_Reader.Data
         {
             await _db.UpdateAsync(client);
         }
-    }
+    
 
+
+        public async Task CopyDatabaseToDownloadsAsync()
+        {
+            try
+            {
+                // Caminho do banco dentro do app
+                string dbPath = Path.Combine(FileSystem.AppDataDirectory, "delivery.db3");
+
+                if (!File.Exists(dbPath))
+                {
+                    Console.WriteLine("Banco de dados não encontrado.");
+                    return;
+                }
+
+                #if ANDROID
+                // Caminho da pasta Downloads no Android
+                string downloadsPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Download";
+                #elif IOS
+                // Caminho da pasta Documents no iOS (simulador ou dispositivo)
+                string downloadsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                #else
+                string downloadsPath = FileSystem.AppDataDirectory;
+                #endif
+
+                string destinationPath = Path.Combine(downloadsPath, "delivery.db3");
+
+                File.Copy(dbPath, destinationPath, overwrite: true);
+
+                Console.WriteLine($"Banco copiado com sucesso para: {destinationPath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao copiar banco: {ex.Message}");
+            }
+        }
+
+    }
 }

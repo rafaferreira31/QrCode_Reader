@@ -15,8 +15,8 @@ public partial class ConfirmDeliveryPage : ContentPage
         _db = db;
         _client = client;
 
-        NameLabel.Text = client.Name;
-        IdLabel.Text = client.Id.ToString();
+        NameLabel.Text = client.FullName;
+        IdLabel.Text = client.UNID;
     }
 
     private async void Confirm_Clicked(object sender, EventArgs e)
