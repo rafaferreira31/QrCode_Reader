@@ -6,13 +6,14 @@ namespace QrCode_Reader.Views;
 public partial class ConfirmDeliveryPage : ContentPage
 {
     private readonly LocalDatabase _db;
-    private int _clientId;
+    private Client _client;
 
     public ConfirmDeliveryPage(LocalDatabase db, Client client)
     {
         InitializeComponent();
+
         _db = db;
-        _clientId = client.Id;
+        _client = client;
 
         NameLabel.Text = client.Name;
         IdLabel.Text = client.Id.ToString();
@@ -20,8 +21,12 @@ public partial class ConfirmDeliveryPage : ContentPage
 
     private async void Confirm_Clicked(object sender, EventArgs e)
     {
-        await _db.MarkAsDeliveredAsync(_clientId);
+        _client.Delivered = true;
+        _client.DeliverDate = DateTime.Now;
+        _client.DeliveryNote = NoteEditor.Text;
 
-        Navigation.RemovePage(this);
+        await _db.UpdateClientAsync(_client);
+
+        await Navigation.PopAsync();
     }
 }

@@ -17,5 +17,7 @@ public partial class ClientDetailsPage : ContentPage
         {
             DeliverDate.Text = $"Delivered at\n{client.DeliverDate:dd/MM/yyyy HH:mm}";
         }
+
+        NoteLabel.IsVisible = !string.IsNullOrWhiteSpace(client.DeliveryNote);
     }
 }

@@ -27,6 +27,12 @@
                        FontSize="16"
                        HorizontalOptions="Center"/>
 
+                <Editor x:Name="NoteEditor"
+                        Placeholder="Write a note about this delivery..."
+                        AutoSize="TextChanges"
+                        HeightRequest="80"
+                        FontSize="14"
+                        BackgroundColor="Transparent"/>
             </VerticalStackLayout>
         </Frame>
 

@@ -7,9 +7,11 @@ namespace QrCode_Reader.Models
         [PrimaryKey]
         public int Id { get; set; }
         public string Name { get; set; }
+        public string LastName { get; set; }
         public bool Delivered { get; set; }
         public int ProjectId { get; set; }
         public DateTime? DeliverDate { get; set; }
+        public string DeliveryNote { get; set; }
     }
 }
 

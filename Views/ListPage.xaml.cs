@@ -25,7 +25,7 @@ public partial class ListPage : ContentPage
     }
 
     // =========================
-    // IMPORTAR
+    // IMPORT
     // =========================
     private async void ImportClicked(object sender, EventArgs e)
     {
@@ -38,20 +38,20 @@ public partial class ListPage : ContentPage
         {
             await _db.ImportCsvAsNewProjectAsync(file.FullPath, file.FileName);
             await ReloadListAsync();
-            await DisplayAlert("OK", "Importado com sucesso!", "Fechar");
+            await DisplayAlertAsync("OK", "Sucessfully Import!", "Close");
         }
         catch (Exception ex)
         {
-            await DisplayAlert(
-                "Erro ao importar",
-                "O csv selecionado não é válido",
+            await DisplayAlertAsync(
+                "Error Importing",
+                "Selected csv Not Valid",
                 "OK");
         }
     }
 
 
     // =========================
-    // EXPORTAR
+    // EXPORT
     // =========================
     private async void ExportClicked(object sender, EventArgs e)
     {
@@ -59,18 +59,17 @@ public partial class ListPage : ContentPage
 
         if (!clients.Any())
         {
-            await DisplayAlert("Aviso", "Não há dados para exportar.", "OK");
+            await DisplayAlertAsync("Warning", "No data to export.", "OK");
             return;
         }
 
         var csv = new StringBuilder();
-        csv.AppendLine("Id,Name,Delivered");
+        csv.AppendLine("Id,Name,Delivered,DeliveryNote");
 
         foreach (var c in clients)
         {
-            csv.AppendLine($"{c.Id},{c.Name},{c.Delivered}");
+            csv.AppendLine($"{c.Id},{c.Name},{c.Delivered},{c.DeliveryNote}");
         }
-
         var fileName = $"clientes_{DateTime.Now:yyyyMMdd_HHmm}.csv";
 
 #if ANDROID
@@ -84,7 +83,7 @@ public partial class ListPage : ContentPage
             var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
             if (status != PermissionStatus.Granted)
             {
-                await DisplayAlert("Permissão", "Não foi possível acessar a pasta de Downloads.", "OK");
+                await DisplayAlertAsync("Permissão", "Não foi possível acessar a pasta de Downloads.", "OK");
                 return;
             }
         }
@@ -93,12 +92,12 @@ public partial class ListPage : ContentPage
 #endif
 
         File.WriteAllText(path, csv.ToString());
-        await DisplayAlert("Sucesso", $"Arquivo salvo em: {path}", "OK");
+        await DisplayAlertAsync("Sucess", $"Arquivo salvo em: {path}", "OK");
     }
 
 
     // =========================
-    // RECARREGAR LISTA
+    // RELOAD LIST
     // =========================
     private async Task ReloadListAsync()
     {
@@ -107,7 +106,7 @@ public partial class ListPage : ContentPage
     }
 
     // =========================
-    // ABRIR / FECHAR PESQUISA
+    // OPEN / CLOSE SEARCH
     // =========================
     private async void OnSearchToggle(object sender, EventArgs e)
     {
@@ -118,8 +117,8 @@ public partial class ListPage : ContentPage
             Overlay.IsVisible = true;
 
             await Task.WhenAll(
-                SearchBar.TranslateTo(0, 0, 220, Easing.CubicOut),
-                SearchBar.FadeTo(1, 220)
+                SearchBar.TranslateToAsync(0, 0, 220, Easing.CubicOut),
+                SearchBar.FadeToAsync(1, 220)
             );
 
             SearchBar.Focus();
@@ -134,8 +133,8 @@ public partial class ListPage : ContentPage
     private async Task CloseSearchAsync()
     {
         await Task.WhenAll(
-        SearchBar.TranslateTo(-300, 0, 200, Easing.CubicIn),
-        SearchBar.FadeTo(0, 200)
+        SearchBar.TranslateToAsync(-300, 0, 200, Easing.CubicIn),
+        SearchBar.FadeToAsync(0, 200)
     );
 
         SearchBar.IsVisible = false;
@@ -150,7 +149,7 @@ public partial class ListPage : ContentPage
     }
 
     // =========================
-    // FECHAR AO TOCAR FORA
+    // CLOSE SEARCH ON OUTSIDE TAP
     // =========================
     private async void OnOutsideTapped(object sender, EventArgs e)
     {
@@ -161,7 +160,7 @@ public partial class ListPage : ContentPage
     }
 
     // =========================
-    // FILTRAR TEXTO
+    // TEXT FILTERING
     // =========================
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
@@ -184,7 +183,7 @@ public partial class ListPage : ContentPage
 
 
     // =========================
-    // DETAILS DO CLIENTE
+    // CLIENT DETAILS
     // =========================
     private async void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

@@ -96,17 +96,10 @@ namespace QrCode_Reader.Data
             return await _db.Table<Client>().ToListAsync();
         }
 
-        public async Task MarkAsDeliveredAsync(int id)
+        public async Task UpdateClientAsync(Client client)
         {
-            var client = await GetClientByIdAsync(id);
-            if (client != null)
-            {
-                client.Delivered = true;
-                client.DeliverDate = DateTime.Now;
-                await _db.UpdateAsync(client);
-            }
+            await _db.UpdateAsync(client);
         }
-
     }
 
 }

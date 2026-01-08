@@ -40,6 +40,13 @@
                 <Label x:Name="DeliverDate"
                         FontSize="16"
                         HorizontalTextAlignment="Center"/>
+                
+                <Label  x:Name="NoteLabel"
+                        Text="{Binding DeliveryNote}"
+                        FontSize="15"
+                        LineBreakMode="WordWrap"
+                        HorizontalTextAlignment="Center"/>
+
 
             </VerticalStackLayout>
 
