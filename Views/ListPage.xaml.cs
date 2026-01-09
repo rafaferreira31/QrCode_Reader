@@ -85,7 +85,7 @@ public partial class ListPage : ContentPage
             var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
             if (status != PermissionStatus.Granted)
             {
-                await DisplayAlertAsync("Permissão", "Não foi possível acessar a pasta de Downloads.", "OK");
+                await DisplayAlertAsync("Permission", "The Downloads folder could not be accessed.", "OK");
                 return;
             }
         }
@@ -94,7 +94,7 @@ public partial class ListPage : ContentPage
 #endif
 
         File.WriteAllText(path, csv.ToString());
-        await DisplayAlertAsync("Sucess", $"Arquivo salvo em: {path}", "OK");
+        await DisplayAlertAsync("Sucess", $"File saved in: {path}", "OK");
 
         //await _db.CopyDatabaseToDownloadsAsync();
     }

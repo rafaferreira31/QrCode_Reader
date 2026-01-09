@@ -47,7 +47,7 @@ public partial class ScannerPage : ContentPage
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlertAsync("QR inválido", qrValue, "Fechar");
+                    await DisplayAlertAsync("Invalid QR", qrValue, "Close");
 
                     // Reativar o scanner
                     cameraView.IsDetecting = true;
@@ -64,7 +64,7 @@ public partial class ScannerPage : ContentPage
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlertAsync("Erro", "Cliente não encontrado!", "OK");
+                    await DisplayAlertAsync("Error", "Client not found!", "OK");
 
                     cameraView.IsDetecting = true;
                     _isProcessing = false;
@@ -77,7 +77,7 @@ public partial class ScannerPage : ContentPage
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await DisplayAlertAsync("Info", "Entrega já foi confirmada para este cliente.", "OK");
+                    await DisplayAlertAsync("Info", "Delivery already confirmed for this client", "OK");
 
                     cameraView.IsDetecting = true;
                     _isProcessing = false;

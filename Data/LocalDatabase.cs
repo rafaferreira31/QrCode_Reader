@@ -66,8 +66,8 @@ namespace QrCode_Reader.Data
                 var client = new Client
                 {
                     UNID = unid,
-                    Name = csv.GetField("NOME")?.Trim() ?? "Sem Nome",
-                    LastName = csv.GetField("COGNOME")?.Trim() ?? "Sem Apelido",
+                    Name = csv.GetField("NOME")?.Trim() ?? "NO NAME",
+                    LastName = csv.GetField("COGNOME")?.Trim() ?? "NO LAST NAME",
                     Delivered = false,
                     ProjectId = project.Id
                 };
@@ -116,7 +116,7 @@ namespace QrCode_Reader.Data
 
                 if (!File.Exists(dbPath))
                 {
-                    Console.WriteLine("Banco de dados não encontrado.");
+                    Console.WriteLine("Database not found!");
                     return;
                 }
 
@@ -134,11 +134,11 @@ namespace QrCode_Reader.Data
 
                 File.Copy(dbPath, destinationPath, overwrite: true);
 
-                Console.WriteLine($"Banco copiado com sucesso para: {destinationPath}");
+                Console.WriteLine($"Database copied to: {destinationPath}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao copiar banco: {ex.Message}");
+                Console.WriteLine($"Error copying database: {ex.Message}");
             }
         }
 
