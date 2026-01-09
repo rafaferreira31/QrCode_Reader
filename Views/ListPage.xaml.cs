@@ -18,15 +18,32 @@ public partial class ListPage : ContentPage
         SearchBar.IsVisible = false;
     }
 
+    /// <summary>
+    /// Handles logic that should occur when the page appears on screen.
+    /// </summary>
+    /// <remarks>Overrides the base implementation to perform additional actions, such as refreshing data,
+    /// each time the page becomes visible. This method is typically called by the framework and should not be invoked
+    /// directly.</remarks>
     protected override async void OnAppearing()
     {
         base.OnAppearing();
         await ReloadListAsync();
     }
 
+
+
     // =========================
     // IMPORT
     // =========================
+
+    /// <summary>
+    /// Handles the import action when the import button is clicked, allowing the user to select a CSV file and import
+    /// its contents as a new project.
+    /// </summary>
+    /// <remarks>If the user cancels the file selection dialog, the import operation is not performed.
+    /// Displays a success or error message based on the outcome of the import.</remarks>
+    /// <param name="sender">The source of the event, typically the import button.</param>
+    /// <param name="e">An EventArgs object that contains the event data.</param>
     private async void ImportClicked(object sender, EventArgs e)
     {
         var file = await FilePicker.PickAsync();
@@ -48,13 +65,26 @@ public partial class ListPage : ContentPage
                 "OK");
         }
 
-       // await _db.CopyDatabaseToDownloadsAsync();
+        //FOR TESTING DATABASE ONLY
+        // await _db.CopyDatabaseToDownloadsAsync();
     }
+
 
 
     // =========================
     // EXPORT
     // =========================
+
+    /// <summary>
+    /// Handles the export operation by generating a CSV file containing all client data and saving it to the device's
+    /// storage.
+    /// </summary>
+    /// <remarks>If there are no clients to export, a warning message is displayed and no file is created. On
+    /// Android devices, the file is saved to the Downloads folder; on other platforms, it is saved to the application's
+    /// data directory. The method requests storage permissions on Android devices running versions earlier than
+    /// 13.</remarks>
+    /// <param name="sender">The source of the event, typically the export button.</param>
+    /// <param name="e">An object that contains the event data.</param>
     private async void ExportClicked(object sender, EventArgs e)
     {
         var clients = await _db.GetAllClientsAsync();
@@ -96,22 +126,40 @@ public partial class ListPage : ContentPage
         File.WriteAllText(path, csv.ToString());
         await DisplayAlertAsync("Sucess", $"Arquivo salvo em: {path}", "OK");
 
+        //FOR TESTING DATABASE ONLY
         //await _db.CopyDatabaseToDownloadsAsync();
     }
+
 
 
     // =========================
     // RELOAD LIST
     // =========================
+
+    /// <summary>
+    /// Asynchronously reloads the list of clients from the database and updates the list view's data source.
+    /// </summary>
+    /// <remarks>Call this method to refresh the displayed client list to reflect the latest data from the
+    /// database. This method should be awaited to ensure the list is updated before performing further actions that
+    /// depend on the refreshed data.</remarks>
+    /// <returns>A task that represents the asynchronous reload operation.</returns>
     private async Task ReloadListAsync()
     {
         allClients = await _db.GetAllClientsAsync();
         List.ItemsSource = allClients;
     }
 
+
+
     // =========================
     // OPEN / CLOSE SEARCH
     // =========================
+
+    /// <summary>
+    /// Handles the toggling of the search bar's visibility in response to a user action.
+    /// </summary>
+    /// <param name="sender">The source of the event that triggered the toggle action.</param>
+    /// <param name="e">An object that contains the event data.</param>
     private async void OnSearchToggle(object sender, EventArgs e)
     {
         if (!_isSearchVisible)
@@ -134,6 +182,14 @@ public partial class ListPage : ContentPage
         }
     }
 
+
+    /// <summary>
+    /// Asynchronously closes the search bar UI and resets the search state to its default values.
+    /// </summary>
+    /// <remarks>This method hides the search bar, clears its text, restores the original client list, and
+    /// re-enables related UI elements. It should be awaited to ensure the UI is fully updated before performing further
+    /// actions.</remarks>
+    /// <returns>A task that represents the asynchronous close operation.</returns>
     private async Task CloseSearchAsync()
     {
         await Task.WhenAll(
@@ -152,9 +208,18 @@ public partial class ListPage : ContentPage
         List.ItemsSource = allClients;
     }
 
+
+
     // =========================
     // CLOSE SEARCH ON OUTSIDE TAP
     // =========================
+
+    /// <summary>
+    /// Handles the event when a tap occurs outside the search area and closes the search interface if it is currently
+    /// visible.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the UI element that was tapped.</param>
+    /// <param name="e">An object that contains the event data.</param>
     private async void OnOutsideTapped(object sender, EventArgs e)
     {
         if (_isSearchVisible)
@@ -163,9 +228,18 @@ public partial class ListPage : ContentPage
         }
     }
 
+
+
     // =========================
     // TEXT FILTERING
     // =========================
+
+    /// <summary>
+    /// Handles the event that occurs when the search text is changed, updating the displayed client list to match the
+    /// current filter.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the search input control.</param>
+    /// <param name="e">The event data containing information about the changed text.</param>
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
         if (allClients == null || !allClients.Any())
@@ -186,15 +260,26 @@ public partial class ListPage : ContentPage
     }
 
 
+
     // =========================
     // CLIENT DETAILS
     // =========================
+
+    /// <summary>
+    /// Handles the selection changed event for the client list and navigates to the details page for the selected
+    /// client.
+    /// </summary>
+    /// <remarks>If no client is selected, the method returns without performing any action. After navigating
+    /// to the client details page, the selection in the list is cleared to prevent repeated navigation when returning
+    /// to the list.</remarks>
+    /// <param name="sender">The source of the event, typically the client list control.</param>
+    /// <param name="e">A SelectionChangedEventArgs object that contains data about the selection change event.</param>
     private async void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is not Client selectedClient)
             return;
 
-        // Remove seleção visual
+        // Remove visual selection
         List.SelectedItem = null;
 
         await Navigation.PushAsync(new ClientDetailsPage(selectedClient));

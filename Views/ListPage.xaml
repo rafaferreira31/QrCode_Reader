@@ -3,7 +3,7 @@
              x:Class="QrCode_Reader.Views.ListPage"
              Title="Lista">
 
-    <!-- SEARCHBAR NO TÍTULO -->
+    <!-- SEARCHBAR ON TITLE -->
     <Shell.TitleView>
         <SearchBar
             x:Name="SearchBar"
@@ -16,7 +16,7 @@
             Margin="10,0"/>
     </Shell.TitleView>
 
-    <!-- BOTÕES DA TOOLBAR -->
+    <!-- TOOLBAR BUTTONS -->
     <ContentPage.ToolbarItems>
 
         <ToolbarItem
@@ -40,7 +40,7 @@
 
     </ContentPage.ToolbarItems>
 
-    <!-- CONTEÚDO COM DETEÇÃO DE TOQUE FORA -->
+    <!-- CONTENT WITH TOUCH DETECTION OUTSIDE -->
     <Grid>
 
         <CollectionView x:Name="List"
@@ -74,7 +74,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- CAPTURA TOQUE FORA DA SEARCHBAR -->
+        <!-- CAPTURE TOUCH OUTSIDE OF SEARCHBAR -->
         <BoxView x:Name="Overlay"
          BackgroundColor="Transparent"
          IsVisible="False">

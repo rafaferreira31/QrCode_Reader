@@ -19,6 +19,7 @@ public partial class ConfirmDeliveryPage : ContentPage
         IdLabel.Text = client.UNID;
     }
 
+
     private async void Confirm_Clicked(object sender, EventArgs e)
     {
         _client.Delivered = true;
