@@ -1,4 +1,5 @@
 ﻿using QrCode_Reader.Data;
+using QrCode_Reader.Helpers;
 using ZXing.Net.Maui;
 
 namespace QrCode_Reader.Views;
@@ -14,17 +15,6 @@ public partial class ScannerPage : ContentPage
         _db = db;
     }
 
-    /// <summary>
-    /// Handles the event that occurs when one or more barcodes are detected by the camera, processing the detected QR
-    /// code and initiating delivery confirmation if applicable.
-    /// </summary>
-    /// <remarks>This method temporarily pauses barcode detection while processing a detected QR code to
-    /// prevent duplicate scans. If the QR code is invalid, the client is not found, or delivery has already been
-    /// confirmed, an appropriate alert is displayed and scanning is re-enabled. If a valid, undelivered client is
-    /// found, the user is navigated to the delivery confirmation page. This method is intended to be used as an event
-    /// handler for barcode detection events.</remarks>
-    /// <param name="sender">The source of the event, typically the camera view control that detected the barcodes.</param>
-    /// <param name="e">A BarcodeDetectionEventArgs object that contains the event data, including the detected barcode results.</param>
     private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
         if (_isProcessing)
@@ -44,23 +34,22 @@ public partial class ScannerPage : ContentPage
 
             HapticFeedback.Default.Perform(HapticFeedbackType.Click);
 
-
             //var clientId = QrHelper.ExtractClientId(qrValue);
 
-            // Pause scanner before processing.
+            // Pausar scanner antes do processamento
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 cameraView.IsDetecting = false;
             });
 
-            // --- INVALID QR ---
+            // --- QR INVÁLIDO ---
             if (qrValue == null)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
                     await DisplayAlertAsync("QR inválido", qrValue, "Fechar");
 
-                    // Reactivate the scanner
+                    // Reativar o scanner
                     cameraView.IsDetecting = true;
                     _isProcessing = false;
                 });
@@ -70,7 +59,7 @@ public partial class ScannerPage : ContentPage
 
             var client = await _db.GetClientByIdAsync(qrValue);
 
-            // --- CLIENT NOT FOUND ---
+            // --- CLIENTE NÃO ENCONTRADO ---
             if (client == null)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -83,7 +72,7 @@ public partial class ScannerPage : ContentPage
                 return;
             }
 
-            // --- DELIVERY ALREADY CONFIRMED ---
+            // --- ENTREGA JÁ CONFIRMADA ---
             if (client.Delivered)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -96,7 +85,7 @@ public partial class ScannerPage : ContentPage
                 return;
             }
 
-            // --- IF IT GOES TO THE CONFIRMATION PAGE ---
+            // --- CASO VÁ PARA A PÁGINA DE CONFIRMAÇÃO ---
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 await Navigation.PushAsync(new ConfirmDeliveryPage(_db, client));
@@ -104,47 +93,30 @@ public partial class ScannerPage : ContentPage
         }
         finally
         {
-            // It does not automatically reactivate here
-            // To avoid double reading during navigation
+            // Não reativa automaticamente aqui
+            // Para evitar dupla leitura durante navegação
         }
     }
 
 
-    /// <summary>
-    /// Called when the page appears on the screen. Resumes camera detection and resets processing state.
-    /// </summary>
-    /// <remarks>Override this method to perform actions each time the page becomes visible. This method
-    /// ensures that camera detection is active when the page is shown.</remarks>
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
         _isProcessing = false;
-        cameraView.IsDetecting = true; // Resume reading
+        cameraView.IsDetecting = true; // Retoma leitura
     }
-    
-    /// <summary>
-    /// Handles logic that should occur when the page is about to disappear from view.
-    /// </summary>
-    /// <remarks>This method stops camera detection when the page is no longer visible. Override this method
-    /// to add additional cleanup or state management when the page disappears. Always call the base implementation to
-    /// ensure proper behavior.</remarks>
+
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
 
-        cameraView.IsDetecting = false; // Ensure pause
+        cameraView.IsDetecting = false; // Garante pausa
     }
 
 
-
-    /// <summary>
-    /// Handles changes to the size of the element by allocating space for its content.
-    /// </summary>
-    /// <remarks>Override this method to adjust layout or perform actions when the element's size changes.
-    /// This method is called during the layout cycle after the size has been determined.</remarks>
-    /// <param name="width">The new width of the element, in device-independent units.</param>
-    /// <param name="height">The new height of the element, in device-independent units.</param>
+    //Tamanho do scanner dinâmico
     protected override void OnSizeAllocated(double width, double height)
     {
         base.OnSizeAllocated(width, height);
@@ -154,11 +126,6 @@ public partial class ScannerPage : ContentPage
         scannerBorder.HeightRequest = square;
     }
 
-    /// <summary>
-    /// Handles the click event for the list navigation control and navigates to the list page.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the control that was clicked.</param>
-    /// <param name="e">An object that contains the event data.</param>
     private async void List_Clicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new ListPage(_db));

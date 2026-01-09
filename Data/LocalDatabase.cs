@@ -16,32 +16,21 @@ namespace QrCode_Reader.Data
         public LocalDatabase(string path)
         {
             _db = new SQLiteAsyncConnection(path);
+            _db.CreateTableAsync<Project>().Wait();
             _db.CreateTableAsync<Client>().Wait();
         }
 
+        public async Task<int> InsertProjectAsync(Project project)
+        {
+            return await _db.InsertAsync(project);
+        }
 
-
-        /// <summary>
-        /// Asynchronously deletes all client records from the data store.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous delete operation.</returns>
         public async Task DeleteAllClientsAsync()
         {
             await _db.DeleteAllAsync<Client>();
+            await _db.DeleteAllAsync<Project>();
         }
 
-
-
-        /// <summary>
-        /// Imports client data from a CSV file and creates a new project with the specified name. All existing clients
-        /// are deleted before the import.
-        /// </summary>
-        /// <remarks>This method deletes all existing clients before importing new data. The CSV file must
-        /// contain columns named "UNID", "NOME", and "COGNOME". Rows with missing or empty "UNID" values are skipped.
-        /// The import is performed in batches for efficiency.</remarks>
-        /// <param name="filePath">The path to the CSV file containing client data. The file must be encoded in UTF-8 and include a header row.</param>
-        /// <param name="projectName">The name to assign to the new project that will be created during the import.</param>
-        /// <returns>A task that represents the asynchronous import operation.</returns>
         public async Task ImportCsvAsNewProjectAsync(string filePath, string projectName)
         {
             await DeleteAllClientsAsync();
@@ -77,8 +66,8 @@ namespace QrCode_Reader.Data
                 var client = new Client
                 {
                     UNID = unid,
-                    Name = csv.GetField("NOME")?.Trim() ?? "NO NAME",
-                    LastName = csv.GetField("COGNOME")?.Trim() ?? "NO LAST NAME",
+                    Name = csv.GetField("NOME")?.Trim() ?? "Sem Nome",
+                    LastName = csv.GetField("COGNOME")?.Trim() ?? "Sem Apelido",
                     Delivered = false,
                     ProjectId = project.Id
                 };
@@ -99,13 +88,6 @@ namespace QrCode_Reader.Data
         }
 
 
-
-        /// <summary>
-        /// Asynchronously retrieves a client entity with the specified unique identifier.
-        /// </summary>
-        /// <param name="UNID">The unique identifier of the client to retrieve. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the client entity if found;
-        /// otherwise, null.</returns>
         public async Task<Client?> GetClientByIdAsync(string UNID)
         {
             return await _db.Table<Client>()
@@ -113,25 +95,11 @@ namespace QrCode_Reader.Data
                 .FirstOrDefaultAsync();
         }
 
-
-
-        /// <summary>
-        /// Asynchronously retrieves all clients from the database.
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation. The task result contains a list of all <see
-        /// cref="Client"/> objects in the database. The list will be empty if no clients are found.</returns>
         public async Task<List<Client>> GetAllClientsAsync()
         {
             return await _db.Table<Client>().ToListAsync();
         }
 
-
-
-        /// <summary>
-        /// Asynchronously updates the specified client in the data store.
-        /// </summary>
-        /// <param name="client">The client entity to update. Cannot be null.</param>
-        /// <returns>A task that represents the asynchronous update operation.</returns>
         public async Task UpdateClientAsync(Client client)
         {
             await _db.UpdateAsync(client);
@@ -139,14 +107,6 @@ namespace QrCode_Reader.Data
     
 
 
-        /// <summary>
-        /// Copies the application's database file to the user's Downloads or Documents folder, overwriting any existing
-        /// file with the same name.
-        /// </summary>
-        /// <remarks>On Android, the database is copied to the device's Downloads folder. On iOS, it is
-        /// copied to the Documents folder. On other platforms, the file is copied to the application's data directory.
-        /// If the database file does not exist, the operation completes without copying.</remarks>
-        /// <returns>A task that represents the asynchronous copy operation.</returns>
         public async Task CopyDatabaseToDownloadsAsync()
         {
             try
@@ -156,7 +116,7 @@ namespace QrCode_Reader.Data
 
                 if (!File.Exists(dbPath))
                 {
-                    Console.WriteLine("Database not found!");
+                    Console.WriteLine("Banco de dados não encontrado.");
                     return;
                 }
 
@@ -174,11 +134,11 @@ namespace QrCode_Reader.Data
 
                 File.Copy(dbPath, destinationPath, overwrite: true);
 
-                Console.WriteLine($"Database successfully copied to: {destinationPath}");
+                Console.WriteLine($"Banco copiado com sucesso para: {destinationPath}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error copying database: {ex.Message}");
+                Console.WriteLine($"Erro ao copiar banco: {ex.Message}");
             }
         }
 
