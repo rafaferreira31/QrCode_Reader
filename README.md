@@ -1,10 +1,9 @@
 # QR Code Reader (QrCode_Reader)
 
-![.NET](https://img.shields.io/badge/.NET-7.0%2B-purple)
+![.NET](https://img.shields.io/badge/.NET-10.0%2B-purple)
 ![MAUI](https://img.shields.io/badge/.NET%20MAUI-Cross--Platform-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)
 ![Language](https://img.shields.io/badge/Language-C%23-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
 
 **QR Code Reader** is a .NET MAUI application written in C# that allows users to read, scan, and manage QR code data.  
 This project serves as a clean and extensible foundation for QR-based workflows such as identification, labeling, and data association.
