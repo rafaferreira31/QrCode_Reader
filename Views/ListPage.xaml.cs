@@ -1,5 +1,6 @@
 ﻿using QrCode_Reader.Data;
 using QrCode_Reader.Models;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace QrCode_Reader.Views;
@@ -7,7 +8,8 @@ namespace QrCode_Reader.Views;
 public partial class ListPage : ContentPage
 {
     private readonly LocalDatabase _db;
-    private List<Client> allClients;
+    private ObservableCollection<Client> Clients = new();
+    private List<Client> _cache = new();
     private bool _isSearchVisible;
 
     public ListPage(LocalDatabase db)
@@ -16,6 +18,7 @@ public partial class ListPage : ContentPage
         _db = db;
 
         SearchBar.IsVisible = false;
+        List.ItemsSource = Clients;
     }
 
     protected override async void OnAppearing()
@@ -48,7 +51,7 @@ public partial class ListPage : ContentPage
                 "OK");
         }
 
-       // await _db.CopyDatabaseToDownloadsAsync();
+        // await _db.CopyDatabaseToDownloadsAsync();
     }
 
 
@@ -105,8 +108,11 @@ public partial class ListPage : ContentPage
     // =========================
     private async Task ReloadListAsync()
     {
-        allClients = await _db.GetAllClientsAsync();
-        List.ItemsSource = allClients;
+        _cache = await _db.GetAllClientsAsync();
+
+        Clients.Clear();
+        foreach (var c in _cache)
+            Clients.Add(c);
     }
 
     // =========================
@@ -130,27 +136,30 @@ public partial class ListPage : ContentPage
         }
         else
         {
-            await CloseSearchAsync();
+            await ClearSearchAndResetListAsync();
         }
     }
 
-    private async Task CloseSearchAsync()
-    {
-        await Task.WhenAll(
-        SearchBar.TranslateToAsync(-300, 0, 200, Easing.CubicIn),
-        SearchBar.FadeToAsync(0, 200)
-    );
 
-        SearchBar.IsVisible = false;
-        SearchBar.Text = string.Empty;
-        SearchBar.Unfocus();
-        SearchIcon.IsEnabled = true;
+    //private async Task CloseSearchAsync()
+    //{
+    //    await Task.WhenAll(
+    //    SearchBar.TranslateToAsync(-300, 0, 200, Easing.CubicIn),
+    //    SearchBar.FadeToAsync(0, 200)
+    //);
 
-        Overlay.IsVisible = false;
-        _isSearchVisible = false;
+    //    SearchBar.IsVisible = false;
+    //    SearchBar.Text = string.Empty;
+    //    SearchBar.Unfocus();
+    //    SearchIcon.IsEnabled = true;
 
-        List.ItemsSource = allClients;
-    }
+    //    Overlay.IsVisible = false;
+    //    _isSearchVisible = false;
+
+    //    Clients.Clear();
+    //    foreach (var c in _cache)
+    //        Clients.Add(c);
+    //}
 
     // =========================
     // CLOSE SEARCH ON OUTSIDE TAP
@@ -159,7 +168,7 @@ public partial class ListPage : ContentPage
     {
         if (_isSearchVisible)
         {
-            await CloseSearchAsync();
+            await CloseSearchUIAsync(); // NÃO limpa filtro
         }
     }
 
@@ -168,21 +177,19 @@ public partial class ListPage : ContentPage
     // =========================
     private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
     {
-        if (allClients == null || !allClients.Any())
-            return;
-
         var text = e.NewTextValue?.ToLower();
 
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            List.ItemsSource = allClients;
-            return;
-        }
+        Clients.Clear();
 
-        List.ItemsSource = allClients
-            .Where(c => !string.IsNullOrEmpty(c.Name) &&
-                        c.Name.ToLower().Contains(text))
-            .ToList();
+        var filtered = string.IsNullOrWhiteSpace(text)
+            ? _cache
+            : _cache.Where(c =>
+                (!string.IsNullOrEmpty(c.Name) && c.Name.ToLower().Contains(text)) ||
+                (!string.IsNullOrEmpty(c.LastName) && c.LastName.ToLower().Contains(text)) ||
+                (!string.IsNullOrEmpty(c.UNID) && c.UNID.ToLower().Contains(text)));
+
+        foreach (var c in filtered)
+            Clients.Add(c);
     }
 
 
@@ -199,4 +206,34 @@ public partial class ListPage : ContentPage
 
         await Navigation.PushAsync(new ClientDetailsPage(selectedClient));
     }
+
+
+    private async Task CloseSearchUIAsync()
+    {
+        await Task.WhenAll(
+            SearchBar.TranslateToAsync(-300, 0, 200, Easing.CubicIn),
+            SearchBar.FadeToAsync(0, 200)
+        );
+
+        SearchBar.IsVisible = false;
+        SearchBar.Unfocus();
+        SearchIcon.IsEnabled = true;
+
+        Overlay.IsVisible = false;
+        _isSearchVisible = false;
+    }
+
+
+    private async Task ClearSearchAndResetListAsync()
+    {
+        SearchBar.Text = string.Empty;
+
+        Clients.Clear();
+        foreach (var c in _cache)
+            Clients.Add(c);
+
+        await CloseSearchUIAsync();
+    }
+
+
 }
