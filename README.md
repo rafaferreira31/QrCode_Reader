@@ -25,18 +25,26 @@ This project serves as a clean and extensible foundation for QR-based workflows 
 ```
 QrCode_Reader/
 ├── Data/
+│   └── LocalDatabase.cs
 ├── Helpers/
+│   └── QrHelper.cs
 ├── Models/
+│   └── Cient.cs
 ├── Platforms/
-├── Properties/
 ├── Resources/
 ├── Views/
-│   ├── MainPage.xaml
-│   └── MainPage.xaml.cs
+│   ├──  ClientDetailsPage.xaml
+│   │    └── ClientDetailsPage.xaml.cs
+│   ├──  ConfirmDeliveryPage.xaml
+│   │    └── ConfirmDeliveryPage.xaml.cs
+│   ├──  ListPage.xaml
+│   │    └── ListPage.xaml.cs
+│   └──  ScannerPage.xaml
+│   │    └── ScannerPage.xaml.cs
 ├── App.xaml
-├── App.xaml.cs
+│   └── App.xaml.cs
 ├── AppShell.xaml
-├── AppShell.xaml.cs
+│   └── AppShell.xaml.cs
 ├── MauiProgram.cs
 ├── QrCode_Reader.csproj
 └── QrCode_Reader.slnx
