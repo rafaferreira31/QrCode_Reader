@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup  
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="QrCode_Reader.Views.ClientDetailsPopup">
+
+    <Border
+        BackgroundColor="White"
+        Padding="20"
+        StrokeShape="RoundRectangle 16"
+        WidthRequest="360">
+
+        <VerticalStackLayout Spacing="14">
+
+            <!-- FECHAR -->
+            <ImageButton Source="close.png"
+                         HorizontalOptions="End"
+                         MaximumHeightRequest="18"
+                         MaximumWidthRequest="18"
+                         Clicked="OnCloseClicked"/>
+
+            <!-- INFO -->
+
+            <Label Text="{Binding Client.FullName}"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+            
+            <Label Text="{Binding Client.UNID}"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+            
+
+            <!-- DELIVERED -->
+            <Grid ColumnDefinitions="Auto,Auto"
+                  ColumnSpacing="8"
+                  VerticalOptions="Center"> 
+
+
+                <Label Text="Delivered:" 
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+                
+                <CheckBox IsChecked="{Binding Client.Delivered}"
+                          IsEnabled="{Binding IsEditing}"
+                          CheckedChanged="Delivered_CheckedChanged"
+                          Grid.Column="1"
+                          VerticalOptions="Center"/>
+                
+            </Grid>
+
+            <!-- DELIVERY DATE (AUTOMÁTICA, READ-ONLY) -->
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="8"
+                  VerticalOptions="Center">
+
+                <Label Text="Delivery Date:"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"/>
+
+                <Label Text="{Binding Client.DeliverDate, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                       VerticalOptions="Center"
+                       Grid.Column="1">
+                    
+                    <Label.Triggers>
+                        
+                        <DataTrigger TargetType="Label"
+                         Binding="{Binding Client.Delivered}"
+                         Value="False">
+                            <Setter Property="IsVisible" Value="False"/>
+                        </DataTrigger>
+                        
+                    </Label.Triggers>
+                    
+                </Label>
+
+            </Grid>
+
+            <!-- NOTE -->
+            <Label Text="Note:" FontAttributes="Bold"/>
+
+            <!-- LEITURA -->
+            <Label Text="{Binding Client.DeliveryNote}"
+                   IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"
+                   LineBreakMode="WordWrap"/>
+
+            <!-- EDIÇÃO -->
+            <Editor Text="{Binding Client.DeliveryNote}"
+                    IsVisible="{Binding IsEditing}"
+                    AutoSize="TextChanges"
+                    HeightRequest="90"/>
+
+            <!-- BOTÕES -->
+            <Grid ColumnDefinitions="Auto,*">
+
+                <!-- EDIT -->
+                <ImageButton Source="edit.png"
+                             Grid.Column="1"
+                             HorizontalOptions="End"
+                             MaximumHeightRequest="26"
+                             MaximumWidthRequest="26"
+                             IsVisible="{Binding IsEditing, Converter={StaticResource InverseBoolConverter}}"
+                             Clicked="OnEditClicked"/>
+
+                <!-- SAVE / CANCEL -->
+                <HorizontalStackLayout Grid.Column="1"
+                                       Spacing="10"
+                                       HorizontalOptions="End"
+                                       IsVisible="{Binding IsEditing}">
+
+                    <Button Text="Cancel"
+                            Clicked="OnCancelEditClicked"/>
+
+                    <Button Text="Save"
+                            BackgroundColor="#2196F3"
+                            TextColor="White"
+                            Clicked="OnSaveClicked"/>
+
+                </HorizontalStackLayout>
+
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+</toolkit:Popup>

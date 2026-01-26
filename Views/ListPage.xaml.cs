@@ -1,4 +1,5 @@
-﻿using QrCode_Reader.Data;
+﻿using CommunityToolkit.Maui.Extensions;
+using QrCode_Reader.Data;
 using QrCode_Reader.Models;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -198,13 +199,18 @@ public partial class ListPage : ContentPage
     // =========================
     private async void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is not Client selectedClient)
+        if (e.CurrentSelection.Count == 0)
             return;
 
-        // Remove seleção visual
-        List.SelectedItem = null;
+        var selectedClient = e.CurrentSelection.FirstOrDefault() as Client;
+        if (selectedClient == null)
+            return;
 
-        await Navigation.PushAsync(new ClientDetailsPage(selectedClient));
+        var popup = new ClientDetailsPopup(selectedClient, _db);
+        await this.ShowPopupAsync(popup);
+
+        // Limpa a seleção ao fechar o popup
+        List.SelectedItem = null;
     }
 
 
